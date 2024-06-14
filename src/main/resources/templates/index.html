@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>TLV Parser</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <style>
+        .tlv {
+            display: flex;
+            align-items: center;
+        }
+        .tlv > span {
+            margin-right: 2em;
+        }
+    </style>
+    <script>
+        $(document).ready(function () {
+            $('form').on('submit', function (event) {
+                event.preventDefault();
+                $.ajax({
+                    url: '/parse',
+                    type: 'POST',
+                    contentType: 'text/plain',
+
+                    data: $('#tlvData').val(),
+                    success: function (result) {
+                        let resultElement = document.getElementById('result');
+                        displayTLVData(result, resultElement);
+                    },
+                    error: function (xhr, status, error) {
+                        $('#error').text(xhr.responseText);
+                        $('#result').text('');
+                    }
+                });
+            });
+        });
+
+        function displayTLVData(tlvDataArray, parentElement, depth = 0) {
+            for (let i = 0; i < tlvDataArray.length; i++) {
+                const tlvData = tlvDataArray[i];
+                let tlvElement = document.createElement('div');
+                tlvElement.className = 'tlv';
+                tlvElement.style.paddingLeft = (depth * 2) + 'em'; // Adjust this value as needed
+
+                let tagElement = document.createElement('span');
+                tagElement.innerHTML = tlvData.tag.value;
+                tlvElement.appendChild(tagElement);
+
+                let lengthElement = document.createElement('span');
+                lengthElement.innerHTML = tlvData.length;
+                tlvElement.appendChild(lengthElement);
+
+                if (tlvData.tag.type == 'PRIMITIVE') {
+                    let valueElement = document.createElement('span');
+                    valueElement.innerHTML = tlvData.value;
+                    tlvElement.appendChild(valueElement);
+                } else {
+                    // If the tag type is CONSTRUCTED, recursively display its children with increased depth
+                    displayTLVData(tlvData.children, tlvElement, depth + 1);
+                }
+
+                parentElement.appendChild(tlvElement);
+            }
+        }
+
+    </script>
+</head>
+<body>
+<h1>TLV Parser</h1>
+<form>
+    <label for="tlvData">TLV Data:</label><br>
+    <input type="text" id="tlvData" name="tlvData" required><br>
+    <input type="submit" value="Parse">
+</form>
+<div id="result"></div>
+<p id="error"></p>
+</body>
+</html>
