@@ -19,14 +19,7 @@ public class LoggingAspect {
         } catch (Exception e) {
             StackTraceElement[] stackTrace = e.getStackTrace();
             StackTraceElement topElement = stackTrace[0];
-
-            String errorMessage = String.format("Error occurred in %s.%s at line %d: %s",
-                    topElement.getClassName(),
-                    topElement.getMethodName(),
-                    topElement.getLineNumber(),
-                    e.getMessage());
-
-            log.error(errorMessage);
+            log.error("Error occurred in {}.{} at line {}: {}", topElement.getClassName(), topElement.getMethodName(), topElement.getLineNumber(), e.getMessage());
             throw e;
         }
 

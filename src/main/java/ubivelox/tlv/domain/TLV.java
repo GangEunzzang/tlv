@@ -17,7 +17,7 @@ public class TLV {
     public TLV(Tag tag, int length, String value, TLV parent) {
         this.tag = tag;
         this.length = length;
-        this.value = value;
+        this.value = value == null ? "" : value;
         this.parent = parent;
     }
 

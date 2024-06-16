@@ -1,5 +1,7 @@
 package ubivelox.tlv.common.exception;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import ubivelox.tlv.common.response.ErrorResponse;
@@ -8,13 +10,17 @@ import ubivelox.tlv.common.response.ErrorResponse;
 public class GlobalRestExceptionHandler {
 
     @ExceptionHandler(BaseException.class)
-    protected ErrorResponse handleBaseException(BaseException e) {
-        return ErrorResponse.of(e.getResultCode(), e.getMessage());
+    protected ResponseEntity<ErrorResponse> handleBaseException(BaseException e) {
+        return ResponseEntity
+                .status(e.getResultCode().getHttpStatus())
+                .body(ErrorResponse.of(e.getResultCode(), e.getMessage()));
     }
 
     @ExceptionHandler(Exception.class)
-    protected ErrorResponse handleException(Exception e) {
-        return ErrorResponse.of(ResultCode.INTERNAL_ERROR);
+    protected ResponseEntity<ErrorResponse> handleException(Exception e) {
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(ErrorResponse.of(ResultCode.INTERNAL_ERROR));
     }
 
 }

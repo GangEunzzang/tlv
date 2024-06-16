@@ -28,9 +28,12 @@
                     data: $('#tlvData').val(),
                     success: function (result) {
                         let resultElement = document.getElementById('result');
-                        displayTLVData(result, resultElement);
+                        displayTLVData(result.data, resultElement);
                     },
                     error: function (xhr, status, error) {
+                        console.log(xhr);
+                        console.log(status);
+                        console.log(error);
                         $('#error').text(xhr.responseText);
                         $('#result').text('');
                     }
