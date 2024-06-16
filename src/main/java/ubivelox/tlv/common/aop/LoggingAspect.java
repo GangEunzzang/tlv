@@ -29,6 +29,7 @@ public class LoggingAspect {
             log.error(errorMessage);
             throw e;
         }
+
         return result;
     }
 }
