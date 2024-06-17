@@ -1,7 +1,6 @@
 package ubivelox.tlv.util;
 
 import lombok.NoArgsConstructor;
-import org.springframework.util.StringUtils;
 import ubivelox.tlv.common.exception.BaseException;
 import ubivelox.tlv.common.exception.ResultCode;
 import ubivelox.tlv.domain.TLV;
@@ -17,33 +16,38 @@ public final class TLVParser {
 
     public static List<TLV> parse(String tlvString) {
         byte[] data = hexStringToByteArray(tlvString);
+        return parseInternal(data, 0, data.length, null);
+    }
 
+    private static List<TLV> parseInternal(byte[] data, int startOffset, int length, TLV parentTlv) {
         List<TLV> tlvList = new ArrayList<>();
-        TLV parentTlv = null;
+        int offset = startOffset;
+        int endOffset = startOffset + length;
 
-        int offset = 0;
-        while (offset < data.length) {
+        while (offset < endOffset) {
             Tag tag = readTag(data, offset);
             offset += tag.getValue().length() / 2;
 
-            int length = readLength(data, offset);
-            offset++;
+            int tlvLength = readLength(data, offset);
+            offset ++;
 
             if (tag.getType() == TagType.CONSTRUCTED) {
-                TLV tlv = TLV.of(tag, length, parentTlv);
-                parentTlv = tlv;
+                TLV tlv = TLV.of(tag, tlvLength, parentTlv);
                 tlvList.add(tlv);
+
+                int initialOffset = offset;
+                List<TLV> childTlvs = parseInternal(data, offset, tlvLength, tlv);
+                tlvList.addAll(childTlvs);
+
+                offset = initialOffset + tlvLength;
                 continue;
             }
 
-            String value = readValue(data, offset, length);
-            TLV tlv = TLV.of(tag, length, value, parentTlv);
-            tlvList.add(tlv);
-            offset += length;
+            String value = readValue(data, offset, tlvLength);
+            offset += tlvLength;
 
-            if (parentTlv != null && offset >= parentTlv.getLength()) {
-                parentTlv = parentTlv.getParent();
-            }
+            TLV tlv = TLV.of(tag, tlvLength, value, parentTlv);
+            tlvList.add(tlv);
         }
 
         return tlvList;
@@ -125,5 +129,4 @@ public final class TLVParser {
                 .mapToObj(i -> byteToHexString(data[i]))
                 .reduce("", String::concat);
     }
-
 }

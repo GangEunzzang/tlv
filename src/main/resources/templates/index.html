@@ -31,9 +31,6 @@
                         displayTLVData(result.data, resultElement);
                     },
                     error: function (xhr, status, error) {
-                        console.log(xhr);
-                        console.log(status);
-                        console.log(error);
                         $('#error').text(xhr.responseText);
                         $('#result').text('');
                     }
@@ -43,6 +40,7 @@
 
         function displayTLVData(tlvDataArray, container) {
             container.innerHTML = '';
+            document.getElementById('error').innerText = '';
             renderTLVTree(tlvDataArray, container);
         }
 

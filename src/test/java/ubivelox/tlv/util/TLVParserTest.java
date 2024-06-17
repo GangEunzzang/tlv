@@ -37,6 +37,36 @@ class TLVParserTest {
             //when, then
             assertThrows(BaseException.class, () -> TLVParser.hexStringToByteArray(hexString));
         }
+
+        @DisplayName("데이터 길이를 초과하는 태그를 읽을 때 예외를 던진다")
+        @Test
+        void givenDataWithInvalidTagWhenParsedThenThrowsException() {
+            //given
+            String invalidTagData = "FFFFFFFFFF";
+
+            //when, then
+            assertThrows(BaseException.class, () -> TLVParser.parse(invalidTagData));
+        }
+
+        @DisplayName("값 바이트가 데이터 길이를 초과할 때 예외를 던진다")
+        @Test
+        void givenDataWithInvalidValueWhenParsedThenThrowsException() {
+            //given
+            String invalidValueData = "0204FFFFFF";
+
+            //when, then
+            assertThrows(BaseException.class, () -> TLVParser.parse(invalidValueData));
+        }
+
+        @DisplayName("지원되지 않거나 잘못된 데이터 구조의 경우 예외를 던진다")
+        @Test
+        void givenUnsupportedOrInvalidDataWhenParsedThenThrowsException() {
+            //given
+            String unsupportedData = "ZZZZ"; // Not valid hex data
+
+            //when, then
+            assertThrows(BaseException.class, () -> TLVParser.parse(unsupportedData));
+        }
     }
 
     @Nested

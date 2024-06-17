@@ -17,6 +17,7 @@ public class TLVController {
     @PostMapping("/parse")
     public DataResponse<List<TLV>> parse(@RequestBody String tlvData) {
         List<TLV> tlvList = tlvService.parseTlv(tlvData);
+        System.out.println("tlvList = " + tlvList);
         return DataResponse.of(tlvList);
     }
 }
